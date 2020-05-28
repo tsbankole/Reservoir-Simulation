@@ -1,0 +1,369 @@
+\documentclass[10pt,a4,fleqn]{article}
+%\documentclass[10pt,twoside]{article}
+%\documentclass[twocolumn]{article}
+\usepackage{amsmath}
+\usepackage{mathrsfs}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{xfrac}
+\usepackage{setspace}
+\usepackage{fullpage}
+\usepackage{graphicx}
+\usepackage{wrapfig}
+\usepackage{floatrow}
+\usepackage{amssymb}
+\usepackage{mathrsfs}
+\usepackage{trfsigns}
+\usepackage{marvosym,listings,etoolbox}
+\usepackage{geometry}
+\geometry{a4paper, top = 20mm, bottom =30mm}
+\usepackage{caption}
+%\usepackage{subcaption}
+\usepackage{enumitem}
+%\usepackage{multicols}
+\usepackage{float}
+\usepackage{floatrow}
+\usepackage{caption}
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+\usepackage{fancyhdr}
+\usepackage{url}
+\usepackage{chemmacros}
+\usepackage{subfig}
+\usepackage{minted}
+%\usepackage[fleqn]{mathtools}
+%\usepackage{lastpage}
+%\pagestyle{fancy}
+%\fancyhf{}
+%\captionsetup{labelsep=space,justification=justified,singlelinecheck=off}
+\usepackage{natbib}
+\bibliographystyle{abbrvnat}
+\setcitestyle{authoryear,open={(},close={)}}
+%\usepackage[framed,numbered,autolinebreaks,useliterate]{mcode}
+\floatsetup[table]{capposition=top}
+\setlength{\parindent}{0pt}
+\DeclareMathOperator*{\argmin}{arg\,min}
+\newcommand{\R}{\mathbb{R}}
+\newcommand*{\rttensor}[1]{\overline{\overline{#1}}}
+
+\title{Well Reservoir Simulation}
+\author{Bankole Temitayo S. }
+%\numberwithin{equation}{section}
+\begin{document}
+\pagenumbering{arabic}
+\maketitle
+
+\renewcommand{\arraystretch}{1.5}
+\renewcommand{\tabcolsep}{0.2cm}
+
+\section{Coupled PDE in space \& time with Discontinuity}
+
+Consider the following Problem
+
+\begin{equation}\label{1}
+\begin{aligned}
+&\frac{\partial^2 z_1}{\partial x^2} + \frac{\partial^2 z_1}{\partial y^2} +  \delta (x - 1) \delta (y) = \frac{\partial z_1}{\partial t}\\
+&\frac{\partial^2 z_2}{\partial x^2} + \frac{\partial^2 z_2}{\partial y^2} = \frac{\partial z_2}{\partial t}
+\end{aligned}
+\end{equation}
+
+with the following initial and boundary conditions
+
+\begin{equation}
+\begin{aligned}
+    & \text{IC}\\
+    &z_1(x, y, t = 0) = 0\\
+    &z_2(x, y, t = 0) = 0\\
+    &\text{ }\\
+    &\text{BC}\\
+    &z_1(x, \pm \infty, t) = 0\\
+    &z_2(x, \pm \infty, t) = 0\\
+    &z_1(\infty, y, t) = 0\\
+    &z_2(-\infty, y, t) = 0\\
+    &\frac{\partial z_1}{\partial x} = \alpha \left( z_1\left(0,y, t\right) - z_2\left(0,y,t\right)\right)\\
+    &\frac{\partial z_1}{\partial x}(0, y, t) = \frac{\partial z_2}{\partial x}(0,y,t)
+\end{aligned}
+\end{equation}
+
+We begin solving this problem by taking Laplace transform in time as follows:
+\[\bar{z}_1 = \mathscr{L}\left\{{z}_1\right\} = \int_{0}^{\infty} e^{-st}{z}_1 dt\]
+
+Taking the Laplace of Eqn(\ref{1}) yields 
+\begin{equation}\label{2}
+\begin{aligned}
+    &\frac{\partial^2 \bar{z}_1}{\partial x^2} + \frac{\partial^2 \bar{z}_1}{\partial y^2} +  \frac{1}{s}\delta (x -1) \delta (y) = s\bar{z}_1\\
+    &\frac{\partial^2 \bar{z}_1}{\partial x^2} + \frac{\partial^2 \bar{z}_1}{\partial y^2} = s\bar{z}_1    
+\end{aligned}
+\end{equation}
+
+Taking the Laplace of the boundary conditions yield the following
+
+\begin{equation}
+\begin{aligned}
+    &\bar{z}_1(x, \pm \infty, s) = 0\\
+    &\bar{z}_2(x, \pm \infty, s) = 0\\
+    &\bar{z}_1(\infty, y, s) = 0\\
+    &\bar{z}_2(-\infty, y, s) = 0\\
+    &\frac{\partial z_1}{\partial x} = \alpha \left( z_1\left(0,y, s\right) - z_2\left(0,y,s\right)\right)\\
+    &\frac{\partial z_1}{\partial x}(0, y, s) = \frac{\partial z_2}{\partial x}(0,y,s)
+\end{aligned}
+\end{equation}
+
+Our problem is still a PDE so to convert to an ODE, we take a Fourier transform in the $y$ coordinate as follows
+
+\[\rttensor{z}_1 = \mathcal{F}\left\{\bar{z}_1\right\}  = \int_{-\infty}^{\infty} e^{-\omega y}\bar{z}_1 dy \]
+
+Thus, the fourier transform of Eqn(\ref{2}) gives
+\begin{equation}
+    \begin{aligned}
+    &\frac{d^2\,\rttensor{z}_1}{dx^2} - \omega^2 \rttensor{z}_1 + \frac{1}{s}\delta\left(x - 1\right) = s\rttensor{z}_1\\
+    &\frac{d^2\,\rttensor{z}_2}{dx^2} - \omega \rttensor{z}_2 = s\rttensor{z}_2
+    \end{aligned}
+\end{equation}
+
+Again, the Fourier transform of the boundary conditions lead to the following
+
+\begin{equation}
+\begin{aligned}
+    &\rttensor{z}_1(\infty, \omega, s) = 0\\
+    &\rttensor{z}_2(-\infty, \omega, s) = 0\\
+    &\frac{\partial\, \rttensor{z}_1}{\partial x} = \alpha \left( \rttensor{z}_1\left(0,\omega, s\right) - \rttensor {z}_2\left(0,\omega,s\right)\right)\\
+    &\frac{\partial\, \rttensor {z}_1}{\partial x}(0, \omega, s) = \frac{\partial \rttensor {z}_2}{\partial x}(0,\omega,s)
+\end{aligned}
+\end{equation}
+
+Now the above equation can be solved in a straightforward manner either by variation of parameters, Laplace or similar methods. Solve the above to obtain the following
+
+\begin{equation}
+    \begin{aligned}
+    &\rttensor{z}_1 = \frac{1}{2sA}\left( e^{-A\lvert x-1 \rvert } + \frac{A}{A + 2\alpha}e^{-A\left(x+1\right)}\right)\\
+    & \rttensor{z}_2 = \frac{1}{2sA}\left(\frac{2\alpha}{A+2\alpha}\right)e^{A(x-1)}
+    \end{aligned}
+\end{equation}
+
+where $A = \sqrt{s + \omega^2}$\\
+For simplicity let us assume $\alpha = 1$, Now we wish to find the analytical expressions of $z_1, z_2$ as follows via an inverse Fourier and an inverse Laplace as follows
+
+First we observe the following, the above equations can be rewritten as 
+
+\begin{equation}{\label{81}}
+    \begin{aligned}
+    &\rttensor{z}_1 = \frac{1}{2}\left( \frac{e^{-A\lvert x-1 \rvert }}{sA} + \frac{e^{-A\left(x+1\right)}}{s(A + 2)}\right)\\
+    & \rttensor{z}_2 = \frac{1}{2}\left(\frac{e^{A(x-1)}}{sA} - \frac{e^{A(x-1)}}{s(A+2)}\right)
+    \end{aligned}    
+\end{equation}
+
+Hence according to Eqn(\ref{81}), only two terms need to be inverted both in the Fourier and Laplace space. 
+
+For simplicity, Let $x^* = |x_-|, x_-  = x- 1, x_+ = x+ 1$, 
+The first term of the RHS of $\rttensor {z}_1$ as 
+\[\frac{e^{-A\left|x_-\right|}}{2sA} = \frac{e^{-x^*\sqrt{s+\omega^2}}}{2s\sqrt{s + \omega^2}} \] \\
+
+From the property of Laplace, we know that
+
+\begin{equation}\label{laplace1}
+\mathscr{L}^{-1} \left\{\frac{f(s)}{s}\right\} = \int_0^t f(t)dt
+\end{equation}
+\begin{equation}\label{laplace2}
+    \mathscr{L}^{-1} \left\{f(s+b)\right\} = \mathrm{exp}{\left(-bt\right)}\mathscr{L}^{-1}\left\{ f(s) \right\}
+\end{equation}
+
+Given that the inverse Laplace of
+\[\mathscr{L}^{-1} \left\{\frac{e^{-a\sqrt{s}}}{\sqrt{s}}\right \} = \frac{e^{-a^2/4t}}{\sqrt{\pi t}}\]
+
+It becomes evident from eqn(\ref{laplace2}) that the following ensues
+\begin{equation}
+  \mathscr{L}^{-1} \frac{e^{-x^*\sqrt{s+\omega^2}}}{\sqrt{s + \omega^2}} = \frac{e^{-{x^{*2}/4t}}}{\sqrt{\pi t}} e^{-\omega^2t} 
+\end{equation}
+
+From the above, it can be concluded also from eqn(\ref{laplace1}) that
+
+\begin{equation}
+    \mathscr{L}^{-1}  \left\{ \frac{e^{-\sqrt{s +\omega^2}x^*}}{s\sqrt{s +\omega^2}} \right\}
+     = \mathscr{L}^{-1}\left\{ \frac{e^{-\sqrt{s +\omega^2}x^*}}{\sqrt{s +\omega^2}}/{s} \right\}= \int_0^t \frac{e^{-{x^{*2}/4t}}}{\sqrt{\pi t}} e^{-\omega^2t} dt
+\end{equation}
+
+integrating the above leads to the following
+
+\begin{equation}\label{13}
+    \frac{1}{2\omega}\left[\left(\mathrm{erf}\left(\frac{x^* + 2\omega t}{2\sqrt{t}}\right) - 1\right ) e^{\omega x^*} - \left(\mathrm{erf}\left(\frac{x^* - 2\omega t}{2\sqrt{t}}\right) - 1\right ) e^{-\omega x^*}\right]
+\end{equation}
+
+To find the inverse Fourier transform, we employ the following from mathematica\\
+
+\url{https://www.wolframalpha.com/input/?i=integrate+exp%28%28a%2Bb%29*w%29*+%28erf%28%28b+%2B2*c%5E2*w%29%2F%282*c%29%29+-1%29+dw}\\
+
+and \url{https://www.wolframalpha.com/input/?i=integrate+exp%28%28a%2Bb%29*w%29*+%28erf%28%28-b+-2*c%5E2*w%29%2F%282*c%29%29+-1%29+dw}\\
+
+First we observe the following from inverse Fourier transform theory
+\begin{equation}
+    \mathcal{F}^{-1} \left\{f(\omega)\right\} = \int_{-\infty}^{\infty} e^{i\omega y} f(\omega)d\omega
+\end{equation}
+
+The following is also known, see Appendix for a formal proof.
+\[\mathcal{F}^{-1} \left\{\frac{f(\omega)}{i\omega}\right\} = \frac{1}{2\pi}\int_{-\infty}^u f(y)\,dy \quad \forall \, f(y) = \mathcal{F}^{-1}f(\omega)\]
+
+Now we begin with the inverse Fourier of first term in Eqn(\ref{13}) as follows
+
+\begin{equation}
+\begin{split}
+   &\mathcal{F}^{-1} \left\{ \frac{1}{2\omega}\left(\mathrm{erf}\left(\frac{x^* + 2\omega t}{2\sqrt{t}}\right) - 1\right ) e^{\omega\left(x^*\right)} \right\} =\\ &\frac{i}{4\pi}\int_{-\infty}^u\int_{-\infty}^{\infty} \left(\mathrm{erf}\left(\frac{x^* + 2\omega t}{2\sqrt{t}}\right) - 1\right ) e^{\omega\left(x^*+iy\right)}
+   d\omega dy
+   \end{split}
+\end{equation}
+
+Integrating with respect to $\omega$ leads to the following result
+\begin{equation}
+\begin{split}
+ &\frac{i}{4\pi}\int_{-\infty}^u \frac{1}{x^* + iy} \left\{ 
+   \mathrm{exp}\left(\frac{-x^*(x^*+iy)}{2t}\right) \left[
+   \mathrm{exp}\left(\frac{(x^*+iy)^2}{4t}\right) \mathrm{erf}\left( \frac{iy-2\omega t}{2\sqrt{t}}\right) \right. \right.\\
+    &\left.+\left. \mathrm{exp}\left(\frac{(x^*+iy)(x^*+2t\omega)}{2t}\right)\left(\mathrm{erf}\left.\left(\frac{x^*+2\omega t}{2\sqrt{t}}\right)-1\right) \right]
+    \right\vert_{-\infty}^{\infty} dy\right\}
+   \end{split}
+\end{equation}
+
+Evaluating the inner indefinite integral at its limits of $\left[-\infty, \infty\right]$ leads to the following result
+
+\begin{equation}\label{part1}
+\begin{aligned}
+   &=\frac{i}{4\pi}\int_{-\infty}^u \frac{1}{x^* + iy} \mathrm{exp}\left(\frac{-x^*(x^*+iy)}{2t}\right) \left[ - \mathrm{exp}\left(\frac{\left(x^*+iy\right)^2}{4t}\right) + 0 - \left( \mathrm{exp}\left(\frac{\left(x^*+iy\right)^2}{4t}\right) + 0\right)\right]\\
+   &=-\frac{i}{2\pi}\int_{-\infty}^u \frac{1}{x^*+iy} \mathrm{exp}\left(\frac{-\left(x^{*2}+ y^2\right)}{4t}\right) dy 
+\end{aligned}
+\end{equation}
+
+
+Now we move to the inverse Fourier transform of the second term of Eqn(\ref{13})
+
+\begin{equation}
+\begin{split}
+   &\mathcal{F}^{-1} \left\{ -\left(\mathrm{erf}\left(\frac{x^* - 2\omega t}{2\sqrt{t}}\right) - 1\right ) e^{-\omega\left(x^*\right)} \right\} 
+   = \\ &-\frac{i}{4\pi}\int_{-\infty}^u\int_{-\infty}^{\infty} \left(\mathrm{erf}\left(\frac{x^* - 2\omega t}{2\sqrt{t}}\right) - 1\right ) e^{-\omega\left(x^* + iy\right)}
+   d\omega dy
+   \end{split}
+\end{equation}
+
+Again, integrating with respect to $\omega$ leads to the following result
+
+\begin{equation}
+\begin{split}
+ &\frac{i}{4\pi}\int_{-\infty}^u \frac{1}{-x^*+iy}
+   \mathrm{exp}\left(\frac{-(x^{*2} + y^2)}{4t}\right) 
+   \mathrm{erf}\left(\frac{iy - 2\omega t}{2\sqrt{t}}\right)\\
+    & +\left. \mathrm{exp}\left(\omega\left(iy - x^*\right)\right)\left(\mathrm{erf}\left(\frac{-x^*+2\omega t}{2\sqrt{t}}\right)+1\right) 
+    \right\vert_{-\infty}^{\infty} dy
+   \end{split}
+\end{equation}
+
+Finally, evaluating the inner indefinite integral at its limits of $\left[-\infty, \infty\right]$ leads to the following  
+
+\begin{equation}\label{part2}
+\begin{aligned}
+   &-\frac{i}{2\pi}\int_{-\infty}^u \mathrm{exp}\left(\frac{-(x^{*2}+ y^2)}{4t}\right) \frac{1}{-x^*+iy}dy  
+\end{aligned}
+\end{equation}
+
+Combining Eqn(\ref{part1}) and Eqn(\ref{part2}), the following is obtained
+
+\begin{equation}
+\begin{aligned}
+    &-\frac{i}{2\pi}\int_{-\infty}^u  \mathrm{exp}\left(\frac{-\left(x^{*2}+ y^2\right)}{4t}\right)\left(\frac{1}{x^*+iy} + \frac{1}{-x^*+iy}\right)dy\\
+    = &-\frac{i}{2\pi}\int_{-\infty}^u  \mathrm{exp}\left(\frac{-\left(x^{*2}+ y^2\right)}{4t}\right)\left(\frac{2iy}{-\left(x^{*2}+ y^2\right)}\right)dy\\
+    = &-\frac{1}{\pi}\int_{-\infty}^u  \mathrm{exp}\left(\frac{-\left(x^{*2}+ y^2\right)}{4t}\right)\frac{y}{x^{*2}+ y^2}dy\\
+    = &\frac{1}{2\pi}\int_{u}^{\infty}  \mathrm{exp}\left(\frac{-\left(x^{*2}+ y^2\right)}{4t}\right)\frac{4t}{x^{*2}+ y^2}d\frac{y^2}{4t}\\
+    = &\frac{1}{2\pi}\int_{u}^{\infty} \frac{\mathrm{exp}\left(-p\right)}{p}dp
+\end{aligned}
+\end{equation}
+
+where $p = \sfrac{\left(x^{*2}+ y^2\right)}{4t}$.
+
+Hence we have that
+\begin{equation}
+    \mathcal{F}^{-1}\left\{ \mathscr{L}^{-1}\left\{ \frac{e^{-|x_-|\sqrt{s +\omega^2}}}{2s\sqrt{s +\omega^2}}\right\} \right\} = W\left[\frac{\left(x^{*2}+ y^2\right)}{4t}\right]
+\end{equation}
+
+$W(u) \text{ is the Wells function defined by } $ 
+
+\begin{equation}
+    W(u) = \int_u^{\infty} \frac{e^{-x}}{x}dx
+\end{equation}
+
+
+The second term of Eqn(\ref{81}) of the RHS of $\rttensor {z}_1$ can be written generically (with dummy variable $x$) as
+
+
+\[\mathcal{F}^{-1}\left\{ \mathscr{L}^{-1}\left\{ \frac{e^{-Ax}}{s\left(A+2\right)}\right\} \right\}\]
+
+Again, we begin by applying the laws of Laplace transforms as follows
+
+\begin{equation}
+\begin{aligned}
+    &\mathscr{L}^{-1}\left\{ \frac{e^{-Ax}}{s\left(A+2\right)}\right\} = \\
+    &\int_0^t\mathscr{L}^{-1}\left\{ \frac{e^{-Ax}}{\left(A+2\right)} \right\} dt = \\
+    &\int_0^t\mathscr{L}^{-1}\left\{ \frac{\mathrm{exp}{\left(-x\sqrt{s+\omega^2} \, \right)}}{\sqrt{s+\omega^2}+2} \right\} dt
+\end{aligned}
+\end{equation}
+
+From the theory of inverse Laplace theory, it is known that
+\[ \mathscr{L}^{-1}\left\{ \frac{\mathrm{exp}\left(-b\sqrt{s}\right)}{\sqrt{s} + d}\right\}  = 
+\frac{\mathrm{exp}\left(-b^2/4t\right)}{\sqrt{\pi t}} -d\,\mathrm{exp}\left(bd + d^2t\right)\, \mathrm{erfc}\left(\frac{b + 2dt}{2\sqrt{t}}\right) \]
+
+Using the property of Laplace transforms in Eqn(\ref{laplace2}), the following is obtained
+
+\begin{equation}
+\begin{aligned}
+    &\int_0^t\mathscr{L}^{-1}\left\{ \frac{\mathrm{exp}{\left(-x\sqrt{s+\omega^2} \, \right)}}{\sqrt{s+\omega^2}+2} \right\} dt = \\
+&\int_0^t \left(\frac{\mathrm{exp}\left(-\left( \sfrac{x^2 + 4\omega^2 t^2}{4t}\right)\right)}{\sqrt{\pi t}} -2\,\mathrm{exp}\left(2x + t\left(4 - \omega^2\right)\right)\, \mathrm{erfc}\left(\frac{x + 4t}{2\sqrt{t}}\right) \right) dt  = \\  &-\frac{\mathrm{exp}\left(-x\omega\right)}{2\left(2+\omega\right)}\mathrm{erf}\left(\frac{x - 2\omega t}{2\sqrt{t}}\right) - \frac{\mathrm{exp}\left(x\omega\right)}{2\left(2-\omega\right)}\mathrm{erf}\left(\frac{x + 2\omega t}{2\sqrt{t}}\right) + \\
+&\frac{\mathrm{cosh}\left(x\omega\right)}{2-\omega}
+- \frac{2\mathrm{exp}\left(2x+\left(4-\omega^2\right)t\right)}{4-\omega^2}\mathrm{erfc}\left(\frac{x + 2\omega t}{2\sqrt{t}}\right)
+\end{aligned}
+\end{equation}
+
+The inverse Fourier of the above was impossible so a different approach is employed. i.e an inverse Fourier before the integral of the inverse Laplace as shown:
+
+\begin{equation}
+\begin{aligned}
+&\mathcal{F}^{-1}\left\{ \mathscr{L}^{-1}\left\{ \frac{e^{-Ax}}{s\left(A+2\right)}\right\} \right\} \\
+ &\mathcal{F}^{-1}\left\{\int_0^t \frac{\mathrm{exp}\left(-\left( \sfrac{x^2 + 4\omega^2 t^2}{4t}\right)\right)}{\sqrt{\pi t}} -2\,\mathrm{exp}\left(2x + t\left(4 - \omega^2\right)\right)\, \mathrm{erfc}\left(\frac{x + 4t}{2\sqrt{t}}\right) dt \right\} \\ 
+ &\mathcal{F}^{-1}\left\{\int_0^t \frac{\mathrm{exp}\left(-\left( \sfrac{x^2 + 4\omega^2 t^2}{4t}\right)\right)}{\sqrt{\pi t}}dt\right\} -\mathcal{F}^{-1}\left\{\int_0^t 2\,\mathrm{exp}\left(2x + t\left(4 - \omega^2\right)\right)\, \mathrm{erfc}\left(\frac{x + 4t}{2\sqrt{t}}\right) dt \right\} \\  
+ &W\left[\frac{\left(x^2+ y^2\right)}{4t}\right] - \frac{1}{2\pi}\int_{-\infty}^{\infty}\mathrm{exp}\left(i\omega\,y\right) \int_0^t 2\,\mathrm{exp}\left(2x + t\left(4 - \omega^2\right)\right)\, \mathrm{erfc}\left(\frac{x + 4t}{2\sqrt{t}}\right) dt\, d\omega \\ 
+&W\left[\frac{\left(x^2+ y^2\right)}{4t}\right] - \frac{1}{\pi}\int_0^t\int_{-\infty}^{\infty}\mathrm{exp}\left(i\omega\,y\right)  \,\mathrm{exp}\left(2x + t\left(4 - \omega^2\right)\right)\, \mathrm{erfc}\left(\frac{x + 4t}{2\sqrt{t}}\right)d\omega\, dt  \\ 
+&W\left[\frac{\left(x^2+ y^2\right)}{4t}\right] - \frac{1}{\pi}\int_0^t\mathrm{erfc}\left(\frac{x + 4t}{2\sqrt{t}}\right)\int_{-\infty}^{\infty}\mathrm{exp}\left(i\omega\,y\right)  \,\mathrm{exp}\left(2x + t\left(4 - \omega^2\right)\right)\, d\omega\, dt  \\ 
+&W\left[\frac{\left(x^2+ y^2\right)}{4t}\right] - \frac{\mathrm{exp}(2x)}{\sqrt{\pi}}\int_0^t\mathrm{erfc}\left(\frac{x + 4t}{2\sqrt{t}}\right) \frac{\mathrm{exp}\left(4t - y^2/4t\right)}{\sqrt{t}}\,dt
+\end{aligned}
+\end{equation}
+
+Therefore we have that
+\begin{equation}
+\begin{aligned}
+    &{z}_1 = \frac{1}{2} \left\{ W\left[\frac{\left(x^{*2}+ y^2\right)}{4t}\right] + W\left[\frac{x_+^2+ y^2}{4t}\right] - \right . \\  & \left . \frac{\mathrm{exp}(2x_+)}{\sqrt{\pi}}\int_0^t\mathrm{erfc}\left(\frac{x_+ + 4t}{2\sqrt{t}}\right) \frac{\mathrm{exp}\left(4t - y^2/4t\right)}{\sqrt{t}}\,dt \right \}
+\end{aligned}
+\end{equation}
+
+\begin{equation}
+\begin{aligned}
+    &{z}_2 =  \frac{\mathrm{exp}(-2x_-)}{2\sqrt{\pi}}\int_0^t\mathrm{erfc}\left(\frac{-x_- + 4t}{2\sqrt{t}}\right) \frac{\mathrm{exp}\left(4t - y^2/4t\right)}{\sqrt{t}}\,dt 
+\end{aligned}
+\end{equation}
+\clearpage
+\section{Appendix}
+\appendix
+
+Prove that 
+\begin{equation}
+    FT\left\{\int_{-\infty}^t  x(\tau)d\tau \right\} = \frac{X(\tau)}{i\omega}
+\end{equation}
+
+\begin{equation}
+\begin{aligned}
+    FT\left\{x(\tau)d\tau \right\} &= \int_{-\infty}^{\infty} \int_{-\infty}^t x(\tau) \, d\tau \, e^{-i\omega t}\,dt \\
+    &= \int_{-\infty}^{\infty} \int_{-\infty}^{\infty} x(\tau) u(t -\tau ) \, d\tau \, e^{-i\omega t}\,dt \\
+    &= \int_{-\infty}^{\infty} x(\tau) \left( \int_{-\infty}^{\infty} u( t- \tau)  e^{-i\omega t} \, dt \right) d \tau \\
+    &= \int_{-\infty}^{\infty} x(\tau) \left(  \int_{-\infty}^{\infty} u(p) e^{-i\omega p} \, dp  \right) e^{-i\omega \tau } \, d\tau  \\
+    &= \int_{-\infty}^{\infty} x(\tau) \left( \int_0^{\infty} e^{-i\omega p} \, dp\right) e^{-i\omega \tau} \, d\tau\\
+    &= \int_{-\infty}^{\infty} x(\tau) \frac{1}{i \omega } e^{-i\omega \tau} \, d\tau\\
+    &= \frac{X(\omega)}{i \omega }    
+    \end{aligned}
+\end{equation}
+\end{document}
+
